@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 import Search from '../Search/Search';
 import Form from '../Form/Form';
 import DisplayNums from '../DisplayNums/DisplayNums';
 
 function App() {
 
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-123456', id: 1 },
-    { name: 'Ada Lovelace', number: '39-44-5323523', id: 2 },
-    { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
-    { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
-  ])
+  const [persons, setPersons] = useState([])
 
   const [toDisplay, setToDisplay] = useState(persons)
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/db")
+      .then(response => {
+        setPersons(response.data.persons)
+        setToDisplay(response.data.persons)
+      })
+  }, [])
+
+
 
   const addNumber = (ev) => {
     ev.preventDefault()
@@ -33,6 +41,8 @@ function App() {
       const newPersons = persons.concat({ name: newName, number: newNumber })
       setPersons(newPersons)
       setToDisplay(newPersons)
+      ev.target["name"].value = ""
+      ev.target["num"].value = ""
     }
   }
 

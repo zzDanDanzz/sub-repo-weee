@@ -2,7 +2,7 @@ const Form = ({onSubmit}) => {
   return (
     <>
     <h2>Add New Entry: </h2>
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} autoComplete="off">
       <div>
         <label>name:</label>
         <input type="text" name="name"/>
