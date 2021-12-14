@@ -1,34 +1,44 @@
 import ContactsDB from "../../ContactsDB";
 import tools from "../../tools";
 
-const Form = ({ contacts, setContacts }) => {
+const Form = ({ contacts, setContacts, setMsg }) => {
   const checkEntry = (event) => {
     event.preventDefault();
-    const newName = event.target["name"].value;
-    const newNumber = event.target["number"].value;
+    const newName = event.target["name"].value.trim();
+    const newNumber = event.target["number"].value.trim();
 
     const requiredWarn = "You must give both a name and a number";
 
     if (!newNumber || !newName) {
-      return alert(requiredWarn);
+      setMsg({text: requiredWarn, type: 'warn'})
+      return 
     }
 
     const confirmPrompt = `${newName} already exists, would you like to replace the old number?`;
 
-    if (tools.filter(contacts, newName, true).length !== 0) {
+    if (tools.isSameAsFilter(contacts, newName).length !== 0) {
       if (!window.confirm(confirmPrompt)) return;
       const [id] = contacts
         .filter((contact) => contact.name === newName)
         .map((contact) => contact.id);
-      ContactsDB.editContact(id, newName, newNumber).then((newContact) => {
-        const updatedContacts = contacts.map((contact) =>
-          contact.id !== id ? contact : newContact
-        );
-        setContacts(updatedContacts);
-      });
+      ContactsDB.editContact(id, newName, newNumber)
+        .then((newContact) => {
+          const updatedContacts = contacts.map((contact) =>
+            contact.id !== id ? contact : newContact
+          );
+          setContacts(updatedContacts);
+          const msg = { text: `${newName}'s number updated`, type: "info" };
+          setMsg(msg);
+        })
+        .catch((err) => {
+          const msg = { text: `contact "${newName}" has already been deleted `, type: "warn" };
+          setMsg(msg);
+        });
     } else {
       ContactsDB.addContact(newName, newNumber).then((newContact) => {
         setContacts(contacts.concat(newContact));
+        const msg = { text: `${newName} added to contacts`, type: "success" };
+        setMsg(msg);
       });
     }
 
