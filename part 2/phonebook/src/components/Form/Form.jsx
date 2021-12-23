@@ -21,7 +21,7 @@ const Form = ({ contacts, setContacts, setMsg }) => {
       const [id] = contacts
         .filter((contact) => contact.name === newName)
         .map((contact) => contact.id);
-      ContactsDB.editContact(id, newName, newNumber)
+      ContactsDB.editContact(id, newNumber)
         .then((newContact) => {
           const updatedContacts = contacts.map((contact) =>
             contact.id !== id ? contact : newContact
@@ -39,7 +39,10 @@ const Form = ({ contacts, setContacts, setMsg }) => {
         setContacts(contacts.concat(newContact));
         const msg = { text: `${newName} added to contacts`, type: "success" };
         setMsg(msg);
-      });
+      }).catch(err => {
+        const msg = { text: err.response.data.error, type: "warn" };
+        setMsg(msg); 
+      })
     }
 
     event.target["name"].value = "";
